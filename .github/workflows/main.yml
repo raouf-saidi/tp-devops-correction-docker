@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build and Publish Docker Images
 
 on:
   push:
@@ -9,10 +9,9 @@ jobs:
   test-backend:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Run backend tests
-        run: echo "Ici on mettrait les tests backend"
+        run: echo "Tests OK" # remplace ça par ta commande réelle de test
 
   build-and-push-docker-image:
     needs: test-backend
@@ -25,23 +24,25 @@ jobs:
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: Build image and push backend
+      - name: Build and Push Backend
         uses: docker/build-push-action@v6
         with:
-          context: ./simple-api
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-simple-api:latest
+          context: ./backend
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Build image and push database
+      - name: Build and Push Database
         uses: docker/build-push-action@v6
         with:
           context: ./database
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Build image and push httpd
+      - name: Build and Push HTTPD
         uses: docker/build-push-action@v6
         with:
           context: ./http-server
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-httpd:latest
           push: ${{ github.ref == 'refs/heads/main' }}
+      - name: Login to 
+          mvn -B verify sonar:sonar -Dsonar.projectKey=raouf-saidi -Dsonar.organization=raouf-saidi -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}  --file ./simple-api/pom.xml
