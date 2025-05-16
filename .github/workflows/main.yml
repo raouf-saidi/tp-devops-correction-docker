@@ -13,10 +13,37 @@ jobs:
       - name: Run backend tests
         run: echo "Tests OK" # remplace ça par ta commande réelle de test
 
-  build-and-push-docker-image:
+  sonarcloud-analysis:
     needs: test-backend
     runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
+      - name: Run SonarCloud analysis
+        run: |
+          mvn -B verify sonar:sonar \
+            -Dsonar.projectKey=raouf-saidi \
+            -Dsonar.organization=raouf-saidi \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            --file ./simple-api/pom.xml
+
+  build-and-push-docker-image:
+    needs: sonarcloud-analysis
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,5 +71,3 @@ jobs:
           context: ./http-server
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-httpd:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-      - name: Login to 
-          mvn -B verify sonar:sonar -Dsonar.projectKey=raouf-saidi -Dsonar.organization=raouf-saidi -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}  --file ./simple-api/pom.xml
