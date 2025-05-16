@@ -15,7 +15,7 @@ import java.util.Optional;
 public class DepartmentController {
     private final DepartmentService departmentService;
     private final StudentService studentService;
-
+// Analyse statique via SonarCloud
     @Autowired
     public DepartmentController(DepartmentService departmentService, StudentService studentService) {
         this.departmentService = departmentService;
