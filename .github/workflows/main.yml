@@ -35,7 +35,7 @@ jobs:
       - name: Run SonarCloud analysis
         run: |
           mvn -B verify sonar:sonar \
-            -Dsonar.projectKey=raouf-saidi \
+            -Dsonar.projectKey=raouf-saidi_tp-devops-correction-docker \
             -Dsonar.organization=raouf-saidi \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
