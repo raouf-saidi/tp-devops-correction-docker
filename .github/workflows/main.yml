@@ -83,4 +83,6 @@ jobs:
           ssh-keyscan -H abdelrraouf.saidi.takima.cloud >> ~/.ssh/known_hosts
 
       - name: Run deploy playbook
-        run: ansible-playbook ansible/playbook.yml -i ansible/inventories/setup.yml 
+        run: |
+          cd ansible
+          ansible-playbook playbook.yml -i inventories/setup.yml \
