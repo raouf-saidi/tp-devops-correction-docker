@@ -2,14 +2,14 @@
 
 - name: Always pull the latest image
   community.docker.docker_image:
-    name: abdelrraoufsaidi/tp-devops-simple-api:latest
+    name: abdelrraoufsaidi/tp-devops-backend:latest
     source: pull
     force_source: true
 
 - name: Launch application container
   docker_container:
     name: simple-api
-    image: abdelrraoufsaidi/tp-devops-simple-api:latest
+    image: abdelrraoufsaidi/tp-devops-backend:latest
     restart_policy: always
 
     state: started
