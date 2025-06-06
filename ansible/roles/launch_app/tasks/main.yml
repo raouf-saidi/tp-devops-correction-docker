@@ -14,7 +14,7 @@
 
     state: started
     recreate: true
-    pull: yes
+    pull: true
     networks:
       - name: my_app_network
     ports:
