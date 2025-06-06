@@ -49,7 +49,7 @@ jobs:
       - name: Build and Push Backend
         uses: docker/build-push-action@v6
         with:
-          context: ./backend  # vérifie que ce soit le bon dossier
+          context: ./database  # vérifie que ce soit le bon dossier
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-backend:latest
           push: ${{ github.ref == 'refs/heads/main' }}
       - name: Build and Push Database
