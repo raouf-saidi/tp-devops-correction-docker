@@ -5,6 +5,8 @@
     name: httpd_proxy
     image: abdelrraoufsaidi/tp-devops-httpd:latest
     state: started
+    recreate: true
+    pull: yes
     networks:
       - name: my_app_network
     ports:
