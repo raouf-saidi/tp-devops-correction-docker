@@ -1,0 +1,13 @@
+#SPDX-License-Identifier: MIT-0
+
+- name: Launch proxy container
+  docker_container:
+    name: httpd_proxy
+    image: abdelrraoufsaidi/tp-devops-httpd:latest
+    state: started
+    networks:
+      - name: my_app_network
+    ports:
+      - "80:80"
+
+# tasks file for roles/launch_proxy

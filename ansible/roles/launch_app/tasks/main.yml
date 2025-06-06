@@ -1,0 +1,23 @@
+#SPDX-License-Identifier: MIT-0
+
+- name: Always pull the latest image
+  community.docker.docker_image:
+    name: abdelrraoufsaidi/tp-devops-simple-api:latest
+    source: pull
+    force_source: true
+
+- name: Launch application container
+  docker_container:
+    name: simple-api
+    image: abdelrraoufsaidi/tp-devops-simple-api:latest
+    restart_policy: always
+
+    state: started
+    networks:
+      - name: my_app_network
+    ports:
+      - "8090:8080"
+    env:
+      DATABASE_HOST: my_database
+      DATABASE_PASSWORD: pwd
+# tasks file for roles/launch_app
