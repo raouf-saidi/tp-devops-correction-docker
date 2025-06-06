@@ -1,72 +1,59 @@
-package fr.takima.training.sampleapplication.IT;
+package fr.takima.training.simpleapi.controller;
 
-import fr.takima.training.simpleapi.SimpleApiApplication;
-import org.junit.jupiter.api.Test;
+import fr.takima.training.simpleapi.entity.Department;
+import fr.takima.training.simpleapi.service.DepartmentService;
+import fr.takima.training.simpleapi.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.Optional;
 
-@AutoConfigureMockMvc
-@SpringBootTest(classes = {SimpleApiApplication.class})
-class DepartmentControllerTestIT {
+@RestController
+@CrossOrigin
+@RequestMapping(value = "/department")
+public class DepartmentController {
+    private final DepartmentService departmentService;
+    private final StudentService studentService;
+// Analyse statique via SonarCloud
     @Autowired
-    private MockMvc mockMvc;
-
-    @Test
-    @Sql({"/InsertData.sql"})
-    void testGetDepartmentByName() throws Exception {
-        mockMvc.perform(get("/departments/ASI"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("id", equalTo(1)))
-                .andExpect(jsonPath("name", equalTo("ASI")));
+    public DepartmentController(DepartmentService departmentService, StudentService studentService) {
+        this.departmentService = departmentService;
+        this.studentService = studentService;
     }
 
-    @Test
-    @Sql({"/InsertData.sql"})
-    void testGetNonExistingDepartmentByName() throws Exception {
-        mockMvc.perform(get("/departments/NIMPORTEQUOI"))
-                .andExpect(status().isNotFound());
+    @GetMapping
+    public ResponseEntity<Object> getDepartments() {
+        return ResponseEntity.ok(departmentService.getDepartments());
     }
 
-    @Test
-    @Sql({"/InsertData.sql"})
-    void testGetDepartmentStudentsByName() throws Exception {
-        mockMvc.perform(get("/departments/ASI/students"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", equalTo(1)))
-                .andExpect(jsonPath("$[0].firstname", equalTo("Gautier")))
-                .andExpect(jsonPath("$[1].lastname", equalTo("Le Bloas")))
-                .andExpect(jsonPath("$[1].department.id", equalTo(1)))
-                .andExpect(jsonPath("$[1].department.name", equalTo("ASI")));
+    @GetMapping("/{departmentName}/students")
+    public ResponseEntity<Object> getDepartmentList(@PathVariable(name="departmentName") String name) {
+        Optional<Department> optionalDepartment = Optional.ofNullable(this.departmentService.getDepartmentByName(name));
+        if (optionalDepartment.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(this.studentService.getStudentsByDepartmentName(name));
     }
 
-    @Test
-    @Sql({"/InsertData.sql"})
-    void testGetNonExistingDepartmentStudentsByName() throws Exception {
-        mockMvc.perform(get("/departments/NIMPORTEQUOI/students"))
-                .andExpect(status().isNotFound());
+    @GetMapping("/{departmentName}")
+    public ResponseEntity<Object> getDepartmentByName(@PathVariable(name="departmentName") String name) {
+        Optional<Department> optionalDepartment = Optional.ofNullable(this.departmentService.getDepartmentByName(name));
+        if (optionalDepartment.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(this.departmentService.getDepartmentByName(name));
     }
 
-    @Test
-    @Sql({"/InsertData.sql"})
-    void testGetDepartmentCountByName() throws Exception {
-        mockMvc.perform(get("/departments/ASI/count"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", equalTo(48)));
-    }
+    @GetMapping("/{departmentName}/count")
+    public ResponseEntity<Object> getDepartmentCountByName(@PathVariable(name="departmentName") String name) {
+        Optional<Department> optionalDepartment = Optional.ofNullable(this.departmentService.getDepartmentByName(name));
+        if (optionalDepartment.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
-    @Test
-    @Sql({"/InsertData.sql"})
-    void testGetNonExistingDepartmentCountsByName() throws Exception {
-        mockMvc.perform(get("/departments/NIMPORTEQUOI/count"))
-                .andExpect(status().isNotFound());
+        return ResponseEntity.ok(this.studentService.getStudentsNumberByDepartmentName(name));
     }
 }
